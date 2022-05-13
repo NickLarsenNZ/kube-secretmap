@@ -1,0 +1,19 @@
+[package]
+name = "kube-secretmap"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+publish = false
+
+[[bin]]
+doc = false
+name = "controller"
+path = "src/main.rs"
+
+[dependencies]
+crd = { path = "./generators/crd" }
+
+[build-dependencies]
+crd = { path = "./generators/crd" }
+kube = { version = "0.71.0", default-features = true, features = ["derive"] }
+serde_yaml = "0.8.24"

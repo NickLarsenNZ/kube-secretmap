@@ -1,0 +1,11 @@
+[package]
+name = "crd"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+k8s-openapi = { version = "0.14", default-features = false, features = ["v1_22"] } # Kube-rs depends on k8s-openapi
+kube = { version = "0.71.0", default-features = true, features = ["derive"] }
+schemars = "0.8.8"
+serde = "1"
+serde_json = "1.0"
