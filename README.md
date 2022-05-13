@@ -10,3 +10,5 @@
 - Schema and documentations generated from code (single source of truth)
 - extract values from JMES Path
 - Support rotation (separate CustomResource)
+
+For now, see <example.yml> for an idea of what a SecretMap coule look like.

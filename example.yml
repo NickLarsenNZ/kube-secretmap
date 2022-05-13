@@ -1,0 +1,24 @@
+apiVersion: example.com/v1alpha1
+kind: SecretMap
+metadata:
+  name: my-map
+spec:
+  secretName: my-app-secrets
+  secretType: opaque
+  secretAlreadyExists:
+    matchLabels:
+      apps.kubernetes.io/name: my-app
+  mappings:
+  - provider: static
+    key: NOT_REALLY_SENSITIVE
+    value: some value
+  - provider: aws # should the aws provider support both ssm and secrets manager, or are they different providers? If the former, does there need to be some generic map of provider config?
+    providerConfig: {} # region, ssmparameter/secretsmanager?
+    key: MY_SECRET
+    valueFrom:
+      secretPath: "" # provider specific reference to the secret
+      jmesPath: "" # parse the secret data as JSON, and exctrat the value from the JMES Path
+  # config for managing rotation policies?
+  # Or na, just leave it to the source to manage.
+  # Actually, this should be another CustomResource. It should be tagged if possible
+  rotations:
