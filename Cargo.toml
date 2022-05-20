@@ -12,6 +12,9 @@ path = "src/main.rs"
 
 [dependencies]
 crd = { path = "./generators/crd" }
+k8s-openapi = "0.14.0"
+kube = "0.71.0"
+tokio = { version = "1.18.2",  features = ["macros", "rt-multi-thread"] }
 
 [build-dependencies]
 crd = { path = "./generators/crd" }
