@@ -12,3 +12,7 @@
 - Support rotation (separate CustomResource)
 
 For now, see <example.yml> for an idea of what a SecretMap coule look like.
+
+## References
+
+- [Reference Controller](https://github.com/kube-rs/controller-rs)
