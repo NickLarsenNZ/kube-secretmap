@@ -4,6 +4,7 @@ use kube::{CustomResource};
 use schemars::JsonSchema;
 use serde::{Serialize, Deserialize};
 
+pub mod provider;
 pub mod examples;
 
 #[derive(CustomResource, Serialize, Deserialize, Debug, PartialEq, Clone, JsonSchema)]
@@ -62,11 +63,26 @@ pub enum MappingConfig {
     ProviderMapping(ProviderMapping),
 }
 
+// todo: move this to the provider module
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub enum ProviderMapping {
     /// AWS SSM Parameter Store or Secrets Manager
-    Aws(String),
+    Aws(provider::aws::AwsProviderConfig),
     /// GCP Secret Manager
     Gcp(String),
 }
+
+// #[cfg(test)]
+// mod tests {
+//     use kube::CustomResourceExt;
+//     use super::*;
+
+//     #[test]
+//     fn test() {
+//         assert!(false);
+
+//         let crd = SecretMap::new();
+//     }
+
+// }

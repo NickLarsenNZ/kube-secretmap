@@ -1,9 +1,12 @@
 use std::collections::BTreeMap;
 
 use crate::MappingConfig;
+use crate::ProviderMapping;
 use crate::SecretAlreadyExists;
 use crate::SecretMap;
 use crate::SecretMapSpec;
+use crate::provider::aws::AwsProviderConfig;
+use crate::provider::aws::AwsSecretStore;
 
 impl SecretMap {
     pub fn examples() -> Vec<Self> {
@@ -27,7 +30,11 @@ impl SecretMap {
                     ]),
                 }),
                 mappings: BTreeMap::from([
-                    (String::from("DB_PASSWORD"), MappingConfig::Static(String::from("blah"))),
+                    (String::from("DB_PASSWORD"), MappingConfig::ProviderMapping(ProviderMapping::Aws(AwsProviderConfig {
+                        region:Some(String::from("ap-southeast-2")),
+                        store: AwsSecretStore::default(),
+                        name: String::from("/app/hello-world/db/password"),
+                    }))),
                 ]),
             }),
         ]

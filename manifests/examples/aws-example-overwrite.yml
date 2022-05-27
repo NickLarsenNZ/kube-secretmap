@@ -9,4 +9,8 @@ spec:
     matchLabels:
       kube-secrets-map.example.com/overwrite: "true"
   mappings:
-    DB_PASSWORD: blah
+    DB_PASSWORD:
+      aws:
+        store: ssmParameterStore
+        name: /app/hello-world/db/password
+        region: ap-southeast-2
