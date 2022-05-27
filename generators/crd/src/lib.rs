@@ -2,6 +2,8 @@ use kube::{CustomResource};
 use schemars::JsonSchema;
 use serde::{Serialize, Deserialize};
 
+pub mod examples;
+
 #[derive(CustomResource, Serialize, Deserialize, Debug, PartialEq, Clone, JsonSchema)]
 #[kube(
     group = "example.com",

@@ -14,12 +14,26 @@ fn main() {
         crd::SecretMap::crd(),
     ];
 
+    // Add any examples to write
+    let example_list: Vec<_> = vec![
+        crd::SecretMap::examples()
+    ].into_iter().flatten().collect();
+
     for crd in crd_list {
         let dest_path = Path::new(&OUT_DIR).join(format!("{}.crd.yml", crd.spec.names.kind));
 
         fs::write(
             &dest_path,
             serde_yaml::to_string(&crd).unwrap()
+        ).unwrap();
+    }
+
+    for example in example_list {
+        let dest_path = Path::new(&OUT_DIR).join(format!("examples/{}.yml", example.clone().metadata.name.expect("named example resource")));
+
+        fs::write(
+            &dest_path,
+            serde_yaml::to_string(&example).unwrap()
         ).unwrap();
     }
 
