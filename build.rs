@@ -20,7 +20,7 @@ fn main() {
     ].into_iter().flatten().collect();
 
     for crd in crd_list {
-        let dest_path = Path::new(&OUT_DIR).join(format!("{}.crd.yml", crd.spec.names.kind));
+        let dest_path = Path::new(&OUT_DIR).join(format!("crds/{}.crd.yml", crd.spec.names.kind));
 
         fs::write(
             &dest_path,
