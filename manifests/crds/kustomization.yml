@@ -1,0 +1,3 @@
+# todo: autogenerate this file
+resources:
+- SecretMap.crd.yml
