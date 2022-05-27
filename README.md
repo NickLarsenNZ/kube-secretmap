@@ -1,6 +1,9 @@
 # SecretMap Operator
 
+***Warning: this is a new project and is not currently in a usable state. Check back soon.***
+
 > todo: description. who is it for and what does it solve? diagram
+
 ## Intended features
 
 - [ ] Multiple secret sources (clouds, platforms)
