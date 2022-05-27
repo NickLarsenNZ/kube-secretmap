@@ -1,0 +1,46 @@
+name: 🧩 New Provider
+description: Request a new provider
+title: "[NEW PROVIDER] <title>"
+labels: [enhancement]
+body:
+- type: checkboxes
+  attributes:
+    label: Is there an existing issue for this?
+    description: Please search to see if an issue already exists for the feature you are requesting.
+    options:
+    - label: I have searched the existing issues
+      required: true
+- type: input
+  attributes:
+    label: Provider Name
+    description: Suggest a provider name to
+    placeholder: "Example: GlobalCloud"
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: External provider configuration
+    description: Please describe how we should configure the provider to use in testing
+    placeholder: |
+      <!-- The below are examples, replace with your own content -->
+
+      1. Sign up at <https://example.com/sign-up>
+      2. Create a _BigService_ API key ...
+      2. Go to _BigSecrets_
+      3. Create a secret, and note down the `name`
+      ```
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Technical References
+    description: If possible, please link us to technical documentation to the provider
+    placeholder: |
+      <!-- The below are examples, replace with your own content -->
+
+      - [API Reference](https://example.com/docs/big_secrets/api)
+      - [Rust DSK](https://example.com/docs/big_secrets/rust-sdk)
+      - [Terraform Resource](https://registry.terraform.io/providers/globalcloud/bigservice/latest/docs/resources/bigsecrets)
+      ```
+  validations:
+    required: false
