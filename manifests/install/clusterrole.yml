@@ -1,0 +1,18 @@
+---
+# Access for the service account
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: control-secretmaps
+rules:
+  - apiGroups: ["kube.rs"]
+    resources: ["secretmaps", "secretmaps/status"]
+    verbs:
+    - get
+    - watch
+    - list
+    - patch
+  - apiGroups: ["events.k8s.io"]
+    resources: ["events"]
+    verbs: ["create"]
+  # todo: create/edit/delete secrets

@@ -1,0 +1,18 @@
+commonLabels:
+
+resources:
+- serviceaccount.yml
+- clusterrole.yml
+- clusterrolebinding.yml
+- deployment.yml
+- service.yml
+
+# todo: offer components for:
+# - ServiceMap
+# - NetworkPolicy
+
+# # You should really override this with a tag
+# images:
+# - name: nicklarsennz/kube-secretmap-controller
+#   newName: ghcr.io/nicklarsennz/kube-secretmap-controller
+#   newTag: latest

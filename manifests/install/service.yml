@@ -1,0 +1,17 @@
+---
+# Expose the http port of the service
+apiVersion: v1
+kind: Service
+metadata:
+  name: secretmap-controller
+  namespace: default
+  labels:
+    app: secretmap-controller
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: secretmap-controller
