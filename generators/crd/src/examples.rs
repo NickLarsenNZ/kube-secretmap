@@ -10,8 +10,9 @@ impl SecretMap {
         vec![
             Self::new("static-example", SecretMapSpec {
                 secret_name: String::from("example"),
-                // todo: add custom labels
-                //   kube-secrets-map.example.com/overwrite: true
+                labels: Some(BTreeMap::from([
+                    (String::from("kube-secrets-map.example.com/overwrite"), String::from("true")),
+                ])),
                 secret_already_exists: None,
                 mappings: BTreeMap::from([
                     (String::from("DB_USERNAME"), MappingConfig::Static(String::from("postgres"))),
@@ -19,8 +20,7 @@ impl SecretMap {
             }),
             Self::new("aws-example-overwrite", SecretMapSpec {
                 secret_name: "example".to_owned(),
-                // add custom labels
-                //   None (cannot do it when the secret already exists)
+                labels: None,
                 secret_already_exists: Some(SecretAlreadyExists{
                     match_labels: BTreeMap::from([
                         (String::from("kube-secrets-map.example.com/overwrite"), String::from("true")),

@@ -1,0 +1,11 @@
+---
+apiVersion: example.com/v1aplha1
+kind: SecretMap
+metadata:
+  name: static-example
+spec:
+  secretName: example
+  labels:
+    kube-secrets-map.example.com/overwrite: "true"
+  mappings:
+    DB_USERNAME: postgres
