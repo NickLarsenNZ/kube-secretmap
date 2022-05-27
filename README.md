@@ -1,18 +1,17 @@
 # SecretMap Operator
 
+> todo: description. who is it for and what does it solve? diagram
 ## Intended features
 
-> consider renaming to SecretMap (secretmap, secretmaps, sm)
+- [ ] Multiple secret sources (clouds, platforms)
+- [ ] Allow static secrets for non-sensitive values that must be in the same secret
+- [ ] Allow adding to existing secrets (with a matchLabels for safety)
+- [x] Schema with documentated fields, and example manifests generated from code (single source of truth)
+- [ ] Extract values from JMES Path
+- [ ] Support rotation (separate CustomResource)
 
-- Multiple secret sources (clouds, platforms)
-- Allow static secrets for non-sensitive values that must be in the same secret
-- Allow adding to existing secrets (with a matchLabels for safey)
-- Schema and documentations generated from code (single source of truth)
-- extract values from JMES Path
-- Support rotation (separate CustomResource)
-
-For now, see <example.yml> for an idea of what a SecretMap coule look like.
-
+See [auto-generated example manifests](./manifests/examples/) for usage.
 ## References
 
 - [Reference Controller](https://github.com/kube-rs/controller-rs)
+- [Another Controller](https://github.com/Pscheidl/rust-kubernetes-operator-example)
