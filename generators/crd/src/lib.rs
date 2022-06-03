@@ -52,21 +52,12 @@ pub struct SecretAlreadyExists {
     match_labels: Labels
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, JsonSchema)]
-#[serde(rename_all = "camelCase")]
-#[serde(untagged)]
-pub enum MappingConfig {
-    /// Set a static string value. Useful for non-sensitive values that must be part of the same secret.
-    Static(String),
-
-    /// Use a provider to dynamically retrieve the secret.
-    ProviderMapping(ProviderMapping),
-}
-
 // todo: move this to the provider module
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-pub enum ProviderMapping {
+pub enum MappingConfig {
+    /// Set a static string value. Useful for non-sensitive values that must be part of the same secret.
+    Static(String),
     /// AWS SSM Parameter Store or Secrets Manager
     Aws(provider::aws::AwsProviderConfig),
     /// GCP Secret Manager

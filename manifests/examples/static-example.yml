@@ -8,4 +8,5 @@ spec:
   labels:
     kube-secrets-map.example.com/overwrite: "true"
   mappings:
-    DB_USERNAME: postgres
+    DB_USERNAME:
+      static: postgres
