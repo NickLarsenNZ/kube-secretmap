@@ -1,31 +1,39 @@
-use std::error::Error;
-use std::{thread};
-use std::time::Duration;
+use manager::Manager;
+use tracing::{info, warn};
+use tracing_subscriber::layer::SubscriberExt;
 
-use k8s_openapi::api::core::v1::Node;
-use kube::{Client, Api, api::ListParams};
-
+mod metrics_server;
+mod manager;
+mod provider;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() {
 
-    let kubernetes_client = Client::try_default().await.expect("can't make a k8s client");
-    let nodes: Api<Node> = Api::all(kubernetes_client);
+    // Create a stdout logging layer
+    let logger = tracing_subscriber::fmt::layer();
 
-    match nodes.list(&ListParams::default().limit(1)).await {
-        Ok(nodes) => {
-            if let Some(node)= nodes.items.get(0) {
-                if let Some(name) = node.metadata.name.clone() {
-                    println!("node: {}", name);
-                }
-            }
-        },
-        Err(e) => println!("{}", e)
-    }
+    // Allow setting RUST_LOG level, or fallback to some level
+    let fallback = "info";
+    let env_filter = tracing_subscriber::EnvFilter::try_from_default_env()
+        .or_else(|_| tracing_subscriber::EnvFilter::try_new(fallback))
+        .unwrap();
 
-    println!("Sleeping...");
-    loop {
-        thread::sleep(Duration::from_secs(15));
+    // Create a collector?
+    let subscriber = tracing_subscriber::Registry::default()
+        .with(logger) // .with(layer) Requires tracing_subscriber::layer::SubscriberExt
+        .with(env_filter);
+
+    // Initialize tracing
+    tracing::subscriber::set_global_default(subscriber).expect("initialize tracing subscriber");
+
+    // Start the controller
+    let (_manager, controller) = Manager::new().await;
+
+
+    // finish up when the first one completes
+    tokio::select! {
+        _ = controller => warn!("controller exited"),
+        _ = metrics_server::run("0.0.0.0:8080") => info!("metrics server shutdown"), // todo: pass Metics from the controller manager as actix_web app_data
     }
 
 }

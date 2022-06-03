@@ -19,6 +19,11 @@ kube = { version = "0.73.0", features = ["runtime", "client", "derive"] }
 thiserror = "1.0.31"
 tokio = { version = "1.18.2",  features = ["macros", "rt-multi-thread"] }
 tracing = "0.1.34"
+tracing-subscriber = { version = "0.3.11", features = ["json", "env-filter"] }
+tracing-opentelemetry = "0.17.2"
+opentelemetry = { version = "0.17.0", features = ["trace", "rt-tokio"] }
+chrono = { version = "0.4.19", features = ["serde"] }
+serde = {version = "1.0.37", features = ["derive"]}
 
 [build-dependencies]
 crd = { path = "./generators/crd" }
