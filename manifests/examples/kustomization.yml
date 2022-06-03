@@ -1,2 +1,17 @@
-# todo: autogenerate this file
-resources: []
+# todo: autogenerate this file - couldn't find a kustomize-openapi crate to make this easier
+resources:
+- aws-example.yml
+- static-example-overwrite.yml
+- static-example.yml
+
+secretGenerator:
+# Setup a test "pre-existing" secret to append to
+- name: existing
+  literals:
+  - EXISTING=value
+  options:
+    labels:
+      kube-secrets-map.example.com/overwrite: "true"
+
+generatorOptions:
+  disableNameSuffixHash: true

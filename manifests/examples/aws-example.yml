@@ -2,12 +2,11 @@
 apiVersion: example.com/v1aplha1
 kind: SecretMap
 metadata:
-  name: aws-example-overwrite
+  name: aws-example
 spec:
-  secretName: example
-  secretAlreadyExists:
-    matchLabels:
-      kube-secrets-map.example.com/overwrite: "true"
+  secretName: aws-example
+  labels:
+    app.kubernetes.io/component: database
   mappings:
     DB_PASSWORD:
       aws:

@@ -4,9 +4,9 @@ kind: SecretMap
 metadata:
   name: static-example
 spec:
-  secretName: example
+  secretName: static-example
   labels:
-    kube-secrets-map.example.com/overwrite: "true"
+    app.kubernetes.io/component: database
   mappings:
     DB_USERNAME:
       static: postgres
