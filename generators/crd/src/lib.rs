@@ -26,13 +26,13 @@ pub struct SecretMapSpec {
 
     // Labels to add to the secret created (not used if the secret already exists)
     #[serde(skip_serializing_if = "Option::is_none")]
-    labels: Option<Labels>,
+    pub labels: Option<Labels>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    secret_already_exists: Option<SecretAlreadyExists>,
+    pub secret_already_exists: Option<SecretAlreadyExists>,
 
     // Mappings of resulting secret key to seceret provider reference
-    mappings: BTreeMap<String, MappingConfig>
+    pub mappings: BTreeMap<String, MappingConfig>
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, JsonSchema)]
