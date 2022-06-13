@@ -3,11 +3,13 @@ use std::{time::Duration, sync::Arc};
 use chrono::{DateTime, Utc};
 use crd::SecretMap;
 use futures::{future::BoxFuture, FutureExt, StreamExt};
-use kube::{api::ListParams, runtime::{controller::Action, Controller, events::Reporter}, Client, Api};
+use kube::{api::ListParams, runtime::{controller::Action, Controller, events::Reporter}, Client, Api, ResourceExt, Resource, core::object::HasSpec};
 use serde::Serialize;
 use thiserror::Error;
 use tokio::{sync::RwLock, time::Instant};
 use tracing::*;
+
+use crate::finalizer;
 
 /// State that we can expose (eg: web server)
 #[derive(Clone, Serialize)]
@@ -51,6 +53,7 @@ impl Manager {
 
         let secret_maps: Api<SecretMap> = Api::all(client);
         let controller = Controller::new(secret_maps, ListParams::default())
+            // .owns(secrets, ListParams::default().labels(label_selector)) // todo: we can limit to owned secrets, but then how do we also watch shared secrets?
             .run(reconcile, error_policy, context)
             .filter_map(|x| async move { std::result::Result::ok(x) })
             .for_each(|_| futures::future::ready(()))
@@ -74,15 +77,27 @@ struct ContextData {
 
 #[derive(Error, Debug)]
 pub enum ManagerError {
-    // #[error("Kubernetes API Error: {0}")]
-    // KubernetesApiError(#[source] kube::Error),
+    #[error("SecretMap resources must have a namespace")]
+    MissingNamespace,
+
+    #[error("Kubernetes API Error: {0}")]
+    KubeError(#[from] kube::Error),
 
     // #[error("Serialization Error: {0}")]
     // SerializationError(#[source] serde_json::Error),
 }
 
-#[instrument(skip(_secret_map, ctx), fields(trace_id))]
-async fn reconcile(_secret_map: Arc<SecretMap>, ctx: Arc<ContextData>) -> Result<Action, ManagerError> {
+pub enum ManagerAction {
+    /// Create subresources, and add them as finalizers to the parent resource (if owned)
+    Create,
+    /// If owned, delete subresources and remove the applicable entry from the parent's finalalizers list
+    Delete,
+    /// The resource is in a desired state, no action required
+    NoOp,
+}
+
+#[instrument(skip(secret_map, ctx), fields(trace_id))]
+async fn reconcile(secret_map: Arc<SecretMap>, ctx: Arc<ContextData>) -> Result<Action, ManagerError> {
     // Setup tracing, and span
     use opentelemetry::trace::TraceContextExt as _; // opentelemetry::Context -> opentelemetry::trace::Span
     use tracing_opentelemetry::OpenTelemetrySpanExt as _; // tracing::Span to opentelemetry::Context
@@ -94,27 +109,89 @@ async fn reconcile(_secret_map: Arc<SecretMap>, ctx: Arc<ContextData>) -> Result
     // todo: Increase the reconciliations counter
     // ctx.metrics.reconciliations.inc();
 
+    let name = secret_map.name();
+    let namespace =  secret_map.namespace().ok_or(ManagerError::MissingNamespace)?;
+
     // do the needful
     ctx.state.write().await.last_event = Utc::now();
-    let _client = ctx.client.clone();
+    let client = ctx.client.clone();
     let _reporter = ctx.state.read().await.reporter.clone();
 
-    // update the status of the resource
-    info!("would have done some reconciliation");
+    // todo: once the reconciliation loop is understood, need to make a flowchart of the cases to cover
 
-    // No event received, check again in 30 seconds
-    Ok(Action::requeue(Duration::from_secs(30)))
+    match determine_action(&secret_map) {
+        ManagerAction::Create => {
+            info!("doing create");
+            // if owned:
+            // - add a finalizer
+            // - create the secret
+            if secret_map.spec().secret_already_exists.is_none() {
+                // mark the owned resources so we can clen up resources before the parent is deleted
+                finalizer::add(client, name.as_str(), namespace.as_str()).await?; // todo: actually, we should always add finalizers so we can clean up secrets in shared resources (perhaps based on explicit configuration)
+                warn!("to implement create for owned secret");
+            } else {
+            // else:
+            // - append to existing secret
+                warn!("to implement create for shared secret")
+
+            }
+            Ok(Action::requeue(Duration::from_secs(30)))
+        },
+        ManagerAction::Delete => {
+            info!("doing delete");
+            // if owned:
+            // - delete the secret
+            // - delete the finalizer
+            if secret_map.spec().secret_already_exists.is_none() {
+                warn!("to implement delete for owned secret");
+
+                // mark the owned resources so we can clen up resources before the parent is deleted
+                finalizer::delete(client, name.as_str(), namespace.as_str()).await?;
+            } else {
+                // else:
+                // - ?
+                warn!("this probably never gets seen")
+
+            }
+            Ok(Action::await_change())
+        }
+        ManagerAction::NoOp => {
+            info!("noop");
+            Ok(Action::requeue(Duration::from_secs(30)))
+        },
+    }
+
 }
 
 #[instrument(skip(_ctx))]
 fn error_policy(error: &ManagerError, _ctx: Arc<ContextData>) -> Action {
     warn!("reconcile failed: {:?}", error);
-    info!("I am here");
 
     // increment the failure counter
-    //ctx.get_ref().metrics.failures.inc();
+    // ctx.metrics.failures.inc();
+    // ctx.get_ref().metrics.failures.inc();
 
     // Reqeue after some time
     Action::requeue(Duration::from_secs(5 * 60))
+
+}
+
+// todo: rewrite this for clarity. It was mostly copied from https://github.com/Pscheidl/rust-kubernetes-operator-example/blob/fbf5ce138b05a952c0fa3595d1181766bbc82be7/src/main.rs#L141-L154
+fn determine_action(resource: &SecretMap) -> ManagerAction {
+    // If there is a deletion timestamp, we need to cleanup
+    // Not sure if we need to worry about subresource deletion here
+    let deletion = resource.meta().deletion_timestamp.is_some();
+
+    // Creation should add finalizers (subresources to be cleaned up)
+    let creation = resource.meta()
+        .finalizers
+        .as_ref()
+        .map_or(true, |finalizers| finalizers.is_empty());
+
+    match (deletion, creation) {
+        (true, _) => ManagerAction::Delete,
+        (_, true) => ManagerAction::Create,
+        _ => ManagerAction::NoOp,
+    }
 
 }

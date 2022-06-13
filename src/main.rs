@@ -5,6 +5,7 @@ use tracing_subscriber::layer::SubscriberExt;
 mod metrics_server;
 mod manager;
 mod provider;
+mod finalizer;
 
 #[tokio::main]
 async fn main() {
